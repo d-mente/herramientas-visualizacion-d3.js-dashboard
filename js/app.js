@@ -3,7 +3,7 @@ const app = Vue.createApp({
 
     <AgeSelector :ages="allAges" @update:modelValue="handleAgesChange"/>
     <GraphColumnSelector @update:modelValue="handleColumnChange"/>
-    <YearSelector @update:modelValue="handleYearChange"/>
+    <YearPlayer @update:modelValue="handleYearChange"/>
     <center>
         <div id="graf"></div>
     </center>
@@ -178,9 +178,14 @@ const app = Vue.createApp({
 
 app.component("AgeSelector", {
     template: `
-        <select class="form-select" v-model="selected" aria-label="Default select example" v-on:change="select($event)">
-            <option :value="item" v-for="item in ages">{{item}}</option>
-        </select>
+        <div class="mb-3 row">
+            <label for="staticEmail" class="col-sm-2 col-form-label">Rango de edades</label>
+            <div class="col-sm-10">
+                <select class="form-select" v-model="selected" aria-label="Default select example" v-on:change="select($event)">
+                    <option :value="item" v-for="item in ages">{{item}}</option>
+                </select>
+            </div>
+        </div>
     `,
     props: ["ages"],
     data() {
@@ -196,58 +201,24 @@ app.component("AgeSelector", {
     },
 });
 
-app.component("StateSelector", {
-    template: `
-        <div class="form-check form-check-inline" v-for="item in entidades">
-            <input class="form-check-input" type="checkbox" :id="item" v-on:change="select($event)" :value="item" v-model="selected">
-            <label class="form-check-label" :for="item">{{item}}</label>
-        </div>
-    `,
-    props: ["entidades"],
-    data() {
-        return {
-            selected: [],
-        };
-    },
-    watch: {
-        entidades: function (newVal, oldVal) {
-            if (this.selected.length == 0 && newVal.length > 0) {
-                let random = Math.floor(Math.random() * this.entidades.length);
-                this.selected.push(this.entidades[random]);
-                random = Math.floor(Math.random() * this.entidades.length);
-                this.selected.push(this.entidades[random]);
-                random = Math.floor(Math.random() * this.entidades.length);
-                this.selected.push(this.entidades[random]);
-                random = Math.floor(Math.random() * this.entidades.length);
-                this.selected.push(this.entidades[random]);
-                random = Math.floor(Math.random() * this.entidades.length);
-                this.selected.push(this.entidades[random]);
-
-                this.$emit("update:modelValue", this.selected);
-            }
-        },
-    },
-    emits: ["update:modelValue"],
-    methods: {
-        select(event) {
-            this.$emit("update:modelValue", this.selected);
-        },
-    },
-});
-
 app.component("GraphColumnSelector", {
     template: `
-        <div class="form-check form-check-inline">
-            <input type="radio" id="total" name="column" value="total" v-model="selected" v-on:click="select($event)">
-            <label for="total">Total</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input type="radio" id="hombres" name="column" value="Hombres" v-model="selected" v-on:click="select($event)">
-            <label for="hombres">Hombres</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input type="radio" id="mujeres" name="column" value="Mujeres" v-model="selected" v-on:click="select($event)">
-            <label for="mujeres">Mujeres</label>
+        <div class="mb-3 row">
+            <label for="staticEmail" class="col-sm-2 col-form-label">Campo</label>
+            <div class="col-sm-10">
+                <div class="form-check form-check-inline">
+                    <input type="radio" id="total" name="column" value="total" v-model="selected" v-on:click="select($event)">
+                    <label for="total">Total</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" id="hombres" name="column" value="Hombres" v-model="selected" v-on:click="select($event)">
+                    <label for="hombres">Hombres</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" id="mujeres" name="column" value="Mujeres" v-model="selected" v-on:click="select($event)">
+                    <label for="mujeres">Mujeres</label>
+                </div>
+            </div>
         </div>
         `,
     data() {
@@ -264,21 +235,30 @@ app.component("GraphColumnSelector", {
     },
 });
 
-app.component("YearSelector", {
+app.component("YearPlayer", {
     template: `
-        <div class="input-group">
-            <div class=" btn-group">
-                <a v-if="state == 'stop'" href="#" class="btn btn-primary" v-on:click="select('play')" >Play</a>
-                <a v-if="state == 'pause'" href="#" class="btn btn-primary" v-on:click="select('continue')" >Continue</a>
-                <a v-if="state == 'play'" href="#" class="btn btn-primary" v-on:click="select('pause')" >Pause</a>
-                <a href="#" class="btn btn-primary" v-on:click="select('stop')" >Stop</a>
+        <div class="mb-3 row">
+            <label for="staticEmail" class="col-sm-2 col-form-label">Periodos dinámicos</label>
+            <div class="col-sm-10">
+                <div class="d-flex flex-row mb-3">
+                    <div class="p-2">
+                        <div class="input-group">
+                            <div class=" btn-group">
+                                <a v-if="state == 'stop'" href="#" class="btn btn-primary" v-on:click="select('play')" >Play</a>
+                                <a v-if="state == 'pause'" href="#" class="btn btn-primary" v-on:click="select('continue')" >Continue</a>
+                                <a v-if="state == 'play'" href="#" class="btn btn-primary" v-on:click="select('pause')" >Pause</a>
+                                <a href="#" class="btn btn-primary" v-on:click="select('stop')" >Stop</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-2 flex-fill">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" :style="[{width: percent +'%'}]" :aria-valuenow="percent" aria-valuemin="0" aria-valuemax="100">{{currentYear}}</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-        
-        <br>
-        <div class="progress">
-            <div class="progress-bar" role="progressbar" :style="[{width: percent +'%'}]" :aria-valuenow="percent" aria-valuemin="0" aria-valuemax="100">{{currentYear}}</div>
-        </div>
+        </div>        
         `,
     data() {
         return {
@@ -329,6 +309,49 @@ app.component("YearSelector", {
             this.currentYear = this.years[this.currentYearPos];
             this.percent = 0;
             this.$emit("update:modelValue", this.currentYear);
+        },
+    },
+});
+
+app.component("StateSelector", {
+    template: `
+        <div class="row">
+        <label class="form-label">Color picker</label>
+        </div>
+
+            <div class="form-check form-check-inline" v-for="item in entidades">
+                <input class="form-check-input" type="checkbox" :id="item" v-on:change="select($event)" :value="item" v-model="selected">
+                <label class="form-check-label" :for="item">{{item}}</label>
+            </div>
+    `,
+    props: ["entidades"],
+    data() {
+        return {
+            selected: [],
+        };
+    },
+    watch: {
+        entidades: function (newVal, oldVal) {
+            if (this.selected.length == 0 && newVal.length > 0) {
+                let random = Math.floor(Math.random() * this.entidades.length);
+                this.selected.push(this.entidades[random]);
+                random = Math.floor(Math.random() * this.entidades.length);
+                this.selected.push(this.entidades[random]);
+                random = Math.floor(Math.random() * this.entidades.length);
+                this.selected.push(this.entidades[random]);
+                random = Math.floor(Math.random() * this.entidades.length);
+                this.selected.push(this.entidades[random]);
+                random = Math.floor(Math.random() * this.entidades.length);
+                this.selected.push(this.entidades[random]);
+
+                this.$emit("update:modelValue", this.selected);
+            }
+        },
+    },
+    emits: ["update:modelValue"],
+    methods: {
+        select(event) {
+            this.$emit("update:modelValue", this.selected);
         },
     },
 });
