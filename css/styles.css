@@ -5,3 +5,11 @@
 .container {
     margin-top: 10px !important; 
 }
+
+.state-selector {
+    margin-top: 20px;
+}
+
+.form-label, .col-form-label {
+    font-weight: bold;
+}

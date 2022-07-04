@@ -1,13 +1,19 @@
 const app = Vue.createApp({
     template: `
-
     <AgeSelector :ages="allAges" @update:modelValue="handleAgesChange"/>
     <GraphColumnSelector @update:modelValue="handleColumnChange"/>
     <YearPlayer @update:modelValue="handleYearChange"/>
-    <center>
-        <div id="graf"></div>
-    </center>
-    <StateSelector :entidades="allStates" @update:modelValue="handleStateChange" />
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-4">
+                <StateSelector :entidades="allStates" @update:modelValue="handleStateChange" />
+            </div>
+            <div class="col">
+                <div id="graf"></div>
+            </div>
+        </div>
+    </div>
     `,
     data() {
         return {
@@ -47,10 +53,6 @@ const app = Vue.createApp({
             },
         };
     },
-    beforeCreate() {
-        // Escaladores
-        // ...
-    },
     async mounted() {
         // Carga de Datos
         this.allData = await d3.csv("Poblacion_01_Clean_Value.csv", d3.autoType);
@@ -66,7 +68,7 @@ const app = Vue.createApp({
             .filter((value, index, self) => self.indexOf(value) === index);
 
         this.graf = d3.select("#graf");
-        this.anchoTotal = +this.graf.style("width").slice(0, -2) / 2;
+        this.anchoTotal = +this.graf.style("width").slice(0, -2);
         this.altoTotal = (this.anchoTotal * 9) / 16;
         this.ancho = this.anchoTotal - this.margins.left - this.margins.right;
         this.alto = this.altoTotal - this.margins.top - this.margins.bottom;
@@ -204,7 +206,7 @@ app.component("AgeSelector", {
 app.component("GraphColumnSelector", {
     template: `
         <div class="mb-3 row">
-            <label for="staticEmail" class="col-sm-2 col-form-label">Campo</label>
+            <label for="staticEmail" class="col-sm-2 col-form-label">Sexo</label>
             <div class="col-sm-10">
                 <div class="form-check form-check-inline">
                     <input type="radio" id="total" name="column" value="total" v-model="selected" v-on:click="select($event)">
@@ -315,15 +317,17 @@ app.component("YearPlayer", {
 
 app.component("StateSelector", {
     template: `
-        <div class="row">
-        <label class="form-label">Color picker</label>
-        </div>
+        <div class="state-selector">
+            <div class="row">
+                <label class="form-label">Entidades federativas</label>
+            </div>
 
             <div class="form-check form-check-inline" v-for="item in entidades">
                 <input class="form-check-input" type="checkbox" :id="item" v-on:change="select($event)" :value="item" v-model="selected">
                 <label class="form-check-label" :for="item">{{item}}</label>
             </div>
-    `,
+        </div>
+        `,
     props: ["entidades"],
     data() {
         return {
@@ -333,16 +337,10 @@ app.component("StateSelector", {
     watch: {
         entidades: function (newVal, oldVal) {
             if (this.selected.length == 0 && newVal.length > 0) {
-                let random = Math.floor(Math.random() * this.entidades.length);
-                this.selected.push(this.entidades[random]);
-                random = Math.floor(Math.random() * this.entidades.length);
-                this.selected.push(this.entidades[random]);
-                random = Math.floor(Math.random() * this.entidades.length);
-                this.selected.push(this.entidades[random]);
-                random = Math.floor(Math.random() * this.entidades.length);
-                this.selected.push(this.entidades[random]);
-                random = Math.floor(Math.random() * this.entidades.length);
-                this.selected.push(this.entidades[random]);
+                let nItems = Math.floor(Math.random() * 5) + 3;
+                for (let i = 0; i < nItems; i++) {
+                    this.selected.push(this.entidades[Math.floor(Math.random() * this.entidades.length)]);
+                }
 
                 this.$emit("update:modelValue", this.selected);
             }
